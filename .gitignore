@@ -1,0 +1,33 @@
+# Python caches & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Environment Variables & Secrets
+.env
+.env.*
+*.env
+
+# Media processing outputs & temp files
+output/
+temp/
+chunks/
+*.mp4
+*.mp3
+*.wav
+*.aac
+*.m4a
+*.ass
+*.srt
+
+# Logs
+*.log
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

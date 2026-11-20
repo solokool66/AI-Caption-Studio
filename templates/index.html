@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Caption Studio — Viral CapCut & Reels Overlays</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Courier+Prime:wght@700&family=Montserrat:wght@800;900&family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #06080e;
+            --surface-card: rgba(18, 24, 38, 0.75);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --surface-hover: rgba(30, 41, 59, 0.8);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            
+            /* Live dynamic highlight variables */
+            --hl-color: #ffaa00;
+            --hl-glow: rgba(255, 170, 0, 0.65);
+            --hl-scale: 1.35;
+            --caption-font: 'Arial Black', Gadget, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        h1, h2, h3, h4, .brand-title {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 45%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.18) 0px, transparent 45%),
+                radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* ── Top Header Bar ── */
+        header {
+            width: 100%;
+            padding: 18px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--surface-border);
+            background: rgba(6, 8, 14, 0.8);
+            backdrop-filter: blur(16px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text span {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .header-badges {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .dot-pulse {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* ── Main App Layout ── */
+        .app-container {
+            max-width: 1380px;
+            width: 95%;
+            margin: 28px auto 40px auto;
+            display: grid;
+            grid-template-columns: 1fr 1.08fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1040px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Glass Cards ── */
+        .glass-panel {
+            background: var(--surface-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Form Controls & Sections ── */
+        .control-group {
+            margin-bottom: 22px;
+        }
+
+        .control-label {
+            font-size: 0.84rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .label-desc {
+            font-size: 0.75rem;
+            color: #60a5fa;
+            text-transform: none;
+            font-weight: 500;
+        }
+
+        /* Style Selection Grid */
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .style-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid var(--surface-border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            text-align: left;
+        }
+
+        .style-card:hover {
+            border-color: rgba(96, 165, 250, 0.4);
+            transform: translateY(-2px);
+            background: rgba(30, 41, 59, 0.5);
+        }
+
+        .style-card.active {
+            border-color: #3b82f6;
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.08));
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+        }
+
+        .style-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 2px 7px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .style-card-title {
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .style-card-desc {
+            font-size: 0.77rem;
+            color: #94a3b8;
+            line-height: 1.35;
+        }
+
+        /* Enlargement Size Chips */
+        .size-chips {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .size-chip {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .size-chip:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(30, 41, 59, 0.6);
+        }
+
+        .size-chip.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.16);
+            color: #93c5fd;
+            font-weight: 700;
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.2);
+        }
+
+        .size-chip .pct {
+            font-size: 1.05rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            display: block;
+        }
+
+        .size-chip .name {
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+
+        /* Color Swatches */
+        .color-palette {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            border: 3px solid transparent;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.18);
+        }
+
+        .color-swatch.active {
+            transform: scale(1.22);
+            border-color: #ffffff;
+            box-shadow: 0 0 16px currentColor;
+        }
+
+        /* 2-col Settings for Aspect Ratio & Canvas */
+        .settings-duo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .chip-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .option-chip {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--surface-border);
+            border-radius: 10px;
+            padding: 9px 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-chip:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #f1f5f9;
+        }
+
+        .option-chip.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.16);
+            color: #93c5fd;
+        }
+
+        /* Custom Font Dropdown */
+        .select-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #f8fafc;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .select-input:focus {
+            border-color: var(--primary);
+        }
+
+        /* ── Upload Area ── */
+        .upload-area {
+            border: 2px dashed rgba(96, 165, 250, 0.35);
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 18px;
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 6px;
+            position: relative;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #60a5fa;
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .upload-icon-anim {
+            font-size: 38px;
+            margin-bottom: 8px;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-area:hover .upload-icon-anim {
+            transform: scale(1.15) translateY(-3px);
+        }
+
+        .upload-main-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .upload-sub-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .file-selected-badge {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-top: 10px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #93c5fd;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .remove-file-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .remove-file-btn:hover {
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        /* ── Submit Action Button ── */
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            padding: 16px 28px;
+            font-size: 1.08rem;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(124, 58, 237, 0.45);
+            background: linear-gradient(135deg, #1d4ed8, #6d28d9);
+        }
+
+        .btn-generate:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        /* ── Right Panel: Live Studio Simulator ── */
+        .simulator-panel {
+            position: sticky;
+            top: 96px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .simulator-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .simulator-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sim-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--surface-border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sim-btn:hover {
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sim-btn.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+            color: #93c5fd;
+        }
+
+        /* Screen Canvas Container */
+        .mock-screen-wrapper {
+            background: #000000;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            min-height: 480px;
+        }
+
+        /* Aspect ratio modes for simulator */
+        .mock-screen-wrapper.ratio-9-16 {
+            max-width: 330px;
+            height: 580px;
+            margin: 0 auto;
+        }
+
+        .mock-screen-wrapper.ratio-16-9 {
+            width: 100%;
+            height: 380px;
+        }
+
+        /* Screen Background options */
+        .screen-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 90px;
+            transition: background 0.3s ease;
+        }
+
+        .screen-canvas.bg-green {
+            background-color: #00ff00;
+        }
+
+        .screen-canvas.bg-blue {
+            background-color: #0000ff;
+        }
+
+        .screen-canvas.bg-black {
+            background-color: #09090b;
+        }
+
+        /* Subtitle display in canvas */
+        .caption-stage {
+            padding: 0 24px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: baseline;
+            gap: 12px 14px;
+            z-index: 5;
+            user-select: none;
+        }
+
+        /* The Animated Kinetic Word */
+        .caption-word {
+            font-size: 2.3rem;
+            font-weight: 900;
+            font-family: var(--caption-font, 'Arial Black', sans-serif) !important;
+            color: #ffffff;
+            text-shadow: 
+                0 2px 4px rgba(0,0,0,0.9),
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                2px 2px 0 #000;
+            display: inline-block;
+            transform-origin: center bottom;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.16s ease, text-shadow 0.16s ease;
+        }
+
+        /* CapCut Marker Box Highlight (from screenshot) */
+        .caption-word.marker-active {
+            background: var(--hl-color, #ffe600) !important;
+            color: #000000 !important;
+            text-shadow: none !important;
+            padding: 3px 12px;
+            border-radius: 8px;
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 0 4px 18px rgba(255, 230, 0, 0.45);
+            display: inline-block;
+            letter-spacing: -0.5px;
+            animation: wordBouncePop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        /* CapCut Word Color Pop (Solid crisp black outline) */
+        .caption-word.active-word {
+            color: var(--hl-color, #ffe600);
+            transform: scale(var(--hl-scale)) translateY(-5px);
+            text-shadow: 
+                -2.8px -2.8px 0 #000,
+                2.8px -2.8px 0 #000,
+                -2.8px 2.8px 0 #000,
+                2.8px 2.8px 0 #000,
+                0 3px 6px rgba(0,0,0,0.8);
+            animation: wordBouncePop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        @keyframes wordBouncePop {
+            0% {
+                transform: scale(calc(var(--hl-scale) * 1.18)) translateY(-9px);
+            }
+            100% {
+                transform: scale(var(--hl-scale)) translateY(-5px);
+            }
+        }
+
+        /* Typing cursor effect (optional subtle indicator) */
+        .typing-cursor {
+            display: inline-block;
+            width: 4px;
+            height: 2.2rem;
+            background: var(--hl-color);
+            border-radius: 2px;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Simulator Overlay UI Elements (Phone indicators) */
+        .phone-notch {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 18px;
+            background: #111;
+            border-radius: 12px;
+            z-index: 10;
+        }
+
+        .phone-social-ui {
+            position: absolute;
+            right: 14px;
+            bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .social-pill {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        /* ── Phrase Switcher Bar below Simulator ── */
+        .preview-text-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--surface-border);
+            border-radius: 14px;
+            padding: 8px 14px;
+        }
+
+        .preview-text-bar input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .preview-text-bar button {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .preview-text-bar button:hover {
+            background: rgba(59, 130, 246, 0.35);
+        }
+
+        /* ── CapCut Cheat Sheet Card ── */
+        .capcut-tip-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.7));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .tip-icon {
+            font-size: 24px;
+            background: rgba(59, 130, 246, 0.15);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tip-content h4 {
+            font-size: 0.92rem;
+            color: #f8fafc;
+            margin-bottom: 4px;
+        }
+
+        .tip-content p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            line-height: 1.45;
+        }
+
+        /* ── Loading Overlay Modal ── */
+        .loading-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 8, 14, 0.85);
+            backdrop-filter: blur(16px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-card {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 38px 32px;
+            width: 90%;
+            max-width: 440px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+        }
+
+        /* Waveform Animation */
+        .wave-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 50px;
+            margin-bottom: 22px;
+        }
+
+        .wave-bar {
+            width: 6px;
+            height: 12px;
+            background: linear-gradient(to top, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+            animation: waveMotion 1.2s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.6s; }
+
+        @keyframes waveMotion {
+            0%, 100% { height: 12px; }
+            50% { height: 48px; }
+        }
+
+        .loading-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .loading-step-text {
+            color: #60a5fa;
+            font-size: 0.92rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #a855f7);
+            border-radius: 6px;
+            transition: width 0.15s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 14px;
+        }
+
+        .loading-hint {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        /* ── Alerts ── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-top: 14px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-error {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">⚡</div>
+            <div class="logo-text">
+                <h1>AI Caption Studio</h1>
+                <span>Viral Chroma Overlays</span>
+            </div>
+        </div>
+        <div class="header-badges">
+            <div class="badge-status" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;">
+                Community Edition (60s Preview)
+            </div>
+            <div class="badge-status">
+                <div class="dot-pulse"></div>
+                Faster-Whisper (CPU int8) Ready
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        
+        <!-- Left Panel: Customizer & File Drop -->
+        <div class="glass-panel">
+            <div class="section-header">
+                <h2>🎨 Style &amp; Kinetics</h2>
+                <p>Customize active word size, typing animation, and highlight colors.</p>
+            </div>
+
+            <form id="captionForm" enctype="multipart/form-data">
+                
+                <!-- 0. Transcription Engine Speed -->
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>⚡ AI Engine Speed</span>
+                        <span class="label-desc" id="speedModeDesc">Turbo Mode (5x Faster, for 1GB - 10GB files)</span>
+                    </div>
+                    <div class="size-chips" style="grid-template-columns: 1fr 1fr;">
+                        <div class="size-chip active" data-speed="base">
+                            <span class="pct" style="font-size: 0.95rem;">⚡ Turbo (Base)</span>
+                            <span class="name">5x Faster • Best for 1GB-10GB ⭐</span>
+                        </div>
+                        <div class="size-chip" data-speed="small">
+                            <span class="pct" style="font-size: 0.95rem;">🎯 Precision (Small)</span>
+                            <span class="name">Deep Accuracy • Heavy Accents</span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="speed" id="speedInput" value="base">
+                </div>
+
+                <!-- 1. Animation Style -->
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>1. Animation Style</span>
+                        <span class="label-desc" id="currentStyleDesc">CapCut Marker: Spoken word gets a solid yellow highlight box with dark text.</span>
+                    </div>
+                    <div class="style-grid">
+                        <div class="style-card active" data-style="marker">
+                            <span class="style-badge" style="background: linear-gradient(135deg, #eab308, #f59e0b);">CapCut Box</span>
+                            <div class="style-card-title">🖍️ CapCut Marker Box</div>
+                            <div class="style-card-desc">Active word gets a solid yellow highlight badge with dark text (like CapCut).</div>
+                        </div>
+                        <div class="style-card" data-style="typing">
+                            <span class="style-badge">Popular</span>
+                            <div class="style-card-title">⌨️ Typing Effect</div>
+                            <div class="style-card-desc">Words appear sequentially as spoken with active enlargement.</div>
+                        </div>
+                        <div class="style-card" data-style="bounce">
+                            <div class="style-card-title">🟡 CapCut Yellow Pop</div>
+                            <div class="style-card-desc">All words visible; active word turns vibrant yellow with crisp black stroke.</div>
+                        </div>
+                        <div class="style-card" data-style="punch">
+                            <div class="style-card-title">⚡ Punchy Zoom</div>
+                            <div class="style-card-desc">1-2 words fast high-energy impact, popular in viral shorts.</div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="style" id="styleInput" value="marker">
+                </div>
+
+                <!-- 2. Active Word Enlargement (Make Highlight Bigger) -->
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>2. Highlight Word Size</span>
+                        <span class="label-desc">Active word is visibly bigger!</span>
+                    </div>
+                    <div class="size-chips">
+                        <div class="size-chip" data-scale="120">
+                            <span class="pct">120%</span>
+                            <span class="name">Subtle</span>
+                        </div>
+                        <div class="size-chip active" data-scale="135">
+                            <span class="pct">135%</span>
+                            <span class="name">Extra Big ⭐</span>
+                        </div>
+                        <div class="size-chip" data-scale="150">
+                            <span class="pct">150%</span>
+                            <span class="name">Massive</span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="scale" id="scaleInput" value="135">
+                </div>
+
+                <!-- 3. Highlight Color Swatches -->
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>3. Highlight Color</span>
+                        <span class="label-desc" id="colorNameLabel">Electric Gold</span>
+                    </div>
+                    <div class="color-palette">
+                        <div class="color-swatch active" data-color="gold" data-hex="#FFAA00" data-name="Electric Gold" style="background: #FFAA00; color: #FFAA00;"></div>
+                        <div class="color-swatch" data-color="lime" data-hex="#00FF66" data-name="Cyber Lime" style="background: #00FF66; color: #00FF66;"></div>
+                        <div class="color-swatch" data-color="cyan" data-hex="#00E5FF" data-name="Neon Cyan" style="background: #00E5FF; color: #00E5FF;"></div>
+                        <div class="color-swatch" data-color="pink" data-hex="#FF2A85" data-name="Hot Pink" style="background: #FF2A85; color: #FF2A85;"></div>
+                        <div class="color-swatch" data-color="purple" data-hex="#B347FF" data-name="Radiant Purple" style="background: #B347FF; color: #B347FF;"></div>
+                        <div class="color-swatch" data-color="coral" data-hex="#FF3344" data-name="Sunset Coral" style="background: #FF3344; color: #FF3344;"></div>
+                        <div class="color-swatch" data-color="white" data-hex="#FFFFFF" data-name="Ice White" style="background: #FFFFFF; color: #FFFFFF;"></div>
+                    </div>
+                    <input type="hidden" name="color" id="colorInput" value="gold">
+                </div>
+
+                <!-- 4. Aspect Ratio & Chroma Canvas -->
+                <div class="control-group">
+                    <div class="settings-duo">
+                        <div>
+                            <div class="control-label">
+                                <span>Aspect Ratio</span>
+                            </div>
+                            <div class="chip-group">
+                                <div class="option-chip active" data-ratio="9:16">📱 9:16 Reels</div>
+                                <div class="option-chip" data-ratio="16:9">🖥️ 16:9 Wide</div>
+                            </div>
+                            <input type="hidden" name="aspect_ratio" id="ratioInput" value="9:16">
+                        </div>
+                        <div>
+                            <div class="control-label">
+                                <span>Canvas Color</span>
+                            </div>
+                            <div class="chip-group">
+                                <div class="option-chip active" data-bg="green">🟩 Green</div>
+                                <div class="option-chip" data-bg="blue">🟦 Blue</div>
+                                <div class="option-chip" data-bg="black">⬛ Black</div>
+                            </div>
+                            <input type="hidden" name="bg_color" id="bgInput" value="green">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Font Family -->
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Font Typography</span>
+                    </div>
+                    <select class="select-input" name="font" id="fontInput">
+                        <option value="Arial Black" selected>Arial Black (Punchy &amp; High Impact)</option>
+                        <option value="Impact">Impact (Viral Meme / TikTok Style)</option>
+                        <option value="Montserrat">Montserrat (Modern Clean Geometric)</option>
+                        <option value="Georgia">Georgia (Classic Editorial Serif)</option>
+                        <option value="Bangers">Bangers (Playful Action Comic)</option>
+                        <option value="Courier Prime">Courier Prime (Authentic Typewriter)</option>
+                        <option value="Trebuchet MS">Trebuchet MS (Smooth Rounded)</option>
+                    </select>
+                </div>
+
+                <!-- 6. File Upload Zone -->
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Audio or Video File</span>
+                    </div>
+
+                    <!-- Community 60s Notice Banner -->
+                    <div style="background: rgba(245, 158, 11, 0.12); border: 1.5px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 1.2rem; line-height: 1;">⏱️</span>
+                        <div style="font-size: 0.85rem; color: #fde68a; line-height: 1.45;">
+                            <strong style="color: #fbbf24;">Community Preview Notice:</strong> Media longer than <strong>60 seconds</strong> is automatically trimmed to the first 60s for your test preview.<br>
+                            <span style="color: #cbd5e1; font-size: 0.78rem;">🚀 <em>Need full-length podcasts, 50GB files &amp; 1-click desktop app? Pro Edition Coming Soon!</em></span>
+                        </div>
+                    </div>
+
+                    <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon-anim">🎧</div>
+                        <div class="upload-main-text" id="dropText">Drag &amp; drop audio/video file here</div>
+                        <div class="upload-sub-text">MP3, WAV, M4A, MP4, MOV · Auto-transcribed with Whisper</div>
+                        <input type="file" id="fileInput" name="audio" accept="audio/*,video/*" style="display: none;">
+                    </div>
+
+                    <div class="file-selected-badge" id="fileBadge">
+                        <div class="file-info">
+                            <span>🎵</span>
+                            <span id="fileNameDisplay">audio.mp3</span>
+                        </div>
+                        <button type="button" class="remove-file-btn" id="removeFileBtn" title="Remove file">&times;</button>
+                    </div>
+                </div>
+
+                <!-- Alerts -->
+                <div class="alert alert-error" id="errorAlert"></div>
+                <div class="alert alert-success" id="successAlert"></div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-generate" id="generateBtn" disabled>
+                    <span>⚡ Generate Video Overlay</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Panel: Live Studio Simulator -->
+        <div class="simulator-panel">
+            <div class="glass-panel" style="padding: 22px;">
+                <div class="simulator-header">
+                    <div class="section-header" style="margin-bottom: 0;">
+                        <h2>📺 Live Studio Preview</h2>
+                        <p>Real-time animation preview with your chosen style &amp; scale.</p>
+                    </div>
+                    <div class="simulator-controls">
+                        <button type="button" class="sim-btn" id="btnRestartPreview" title="Replay Animation">🔄 Replay</button>
+                        <button type="button" class="sim-btn active" id="btnToggleBg" title="Toggle Background">🟩 Chroma</button>
+                    </div>
+                </div>
+
+                <!-- Mock Phone Frame -->
+                <div class="mock-screen-wrapper ratio-9-16" id="mockScreenWrapper" style="margin-top: 18px;">
+                    <div class="phone-notch" id="phoneNotch"></div>
+                    <div class="phone-social-ui">
+                        <div class="social-pill">❤️</div>
+                        <div class="social-pill">💬</div>
+                        <div class="social-pill">↗️</div>
+                    </div>
+
+                    <div class="screen-canvas bg-green" id="screenCanvas">
+                        <div class="caption-stage" id="captionStage">
+                            <!-- Words injected dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Phrase Switcher -->
+                <div class="preview-text-bar" style="margin-top: 16px;">
+                    <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 600;">Text:</span>
+                    <input type="text" id="customPreviewText" value="bear his iniquity." placeholder="Type words to test preview...">
+                    <button type="button" id="btnApplyText">Update</button>
+                </div>
+            </div>
+
+            <!-- CapCut Tips Card -->
+            <div class="capcut-tip-card">
+                <div class="tip-icon">🎬</div>
+                <div class="tip-content">
+                    <h4>How to use in CapCut in 10 seconds:</h4>
+                    <p>1. Open CapCut and tap <strong>Overlay</strong> &gt; <strong>Add Overlay</strong>.<br>
+                       2. Select this downloaded green video.<br>
+                       3. Tap <strong>Cutout</strong> &gt; <strong>Chroma Key</strong> &gt; Pick the Green color and slide <strong>Intensity to 100%</strong>. Done!</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Processing Modal -->
+    <div class="loading-modal" id="loadingModal">
+        <div class="loading-card">
+            <div class="wave-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+            <div class="loading-title">Creating Kinetic Overlays</div>
+            <div class="loading-step-text" id="loadingStep">Uploading media file...</div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="progressPercent">0%</span>
+                <span id="progressBytes">0 MB / 0 MB</span>
+            </div>
+            <div class="loading-hint" id="loadingHint">Supports large 10GB+ files. Processing with multi-core AI acceleration.</div>
+            <button type="button" onclick="document.getElementById('loadingModal').style.display='none';document.getElementById('generateBtn').disabled=false;" style="margin-top:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#cbd5e1;padding:6px 16px;border-radius:8px;font-size:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">✕ Cancel / Close</button>
+        </div>
+    </div>
+
+    <script>
+        /* ──────────────────────────────────────────────────────────
+           Interactive Studio State
+        ────────────────────────────────────────────────────────── */
+        const state = {
+            style: 'marker',
+            scale: 1.35,
+            colorHex: '#FFAA00',
+            colorName: 'gold',
+            aspectRatio: '9:16',
+            bgColor: 'green',
+            font: 'Arial Black',
+            words: ["bear", "his", "iniquity."],
+            activeWordIdx: 0,
+            isPlaying: true,
+            timer: null
+        };
+
+        const samplePhrases = [
+            ["bear", "his", "iniquity."],
+            ["then", "he", "shall", "bear", "his", "iniquity."],
+            ["God", "never", "fails", "you"],
+            ["Trust", "the", "divine", "timing"],
+            ["Consistency", "beats", "talent", "daily"],
+            ["Greater", "is", "He", "in", "you"]
+        ];
+        let phraseBankIdx = 0;
+
+        /* DOM Elements */
+        const captionStage = document.getElementById('captionStage');
+        const mockScreenWrapper = document.getElementById('mockScreenWrapper');
+        const screenCanvas = document.getElementById('screenCanvas');
+        const phoneNotch = document.getElementById('phoneNotch');
+        const currentStyleDesc = document.getElementById('currentStyleDesc');
+        const colorNameLabel = document.getElementById('colorNameLabel');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileBadge = document.getElementById('fileBadge');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const removeFileBtn = document.getElementById('removeFileBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const captionForm = document.getElementById('captionForm');
+        const loadingModal = document.getElementById('loadingModal');
+        const loadingStep = document.getElementById('loadingStep');
+        const errorAlert = document.getElementById('errorAlert');
+        const successAlert = document.getElementById('successAlert');
+        const customPreviewText = document.getElementById('customPreviewText');
+        const btnApplyText = document.getElementById('btnApplyText');
+        const btnRestartPreview = document.getElementById('btnRestartPreview');
+        const btnToggleBg = document.getElementById('btnToggleBg');
+
+        function getFontFamilyString(font) {
+            switch (font) {
+                case 'Impact': return "'Impact', 'Anton', sans-serif";
+                case 'Montserrat': return "'Montserrat', sans-serif";
+                case 'Georgia': return "'Georgia', serif";
+                case 'Bangers': return "'Bangers', cursive";
+                case 'Courier Prime': return "'Courier Prime', 'Courier New', monospace";
+                case 'Trebuchet MS': return "'Trebuchet MS', sans-serif";
+                default: return "'Arial Black', Gadget, sans-serif";
+            }
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           Dynamic CSS Variables Sync
+        ────────────────────────────────────────────────────────── */
+        function updateCssVariables() {
+            document.documentElement.style.setProperty('--hl-color', state.colorHex);
+            document.documentElement.style.setProperty('--hl-scale', state.scale);
+            document.documentElement.style.setProperty('--caption-font', getFontFamilyString(state.font));
+            
+            // Generate glowing aura color with opacity
+            let glow = 'rgba(255, 170, 0, 0.65)';
+            if (state.colorHex.startsWith('#') && state.colorHex.length === 7) {
+                const r = parseInt(state.colorHex.slice(1, 3), 16);
+                const g = parseInt(state.colorHex.slice(3, 5), 16);
+                const b = parseInt(state.colorHex.slice(5, 7), 16);
+                glow = `rgba(${r}, ${g}, ${b}, 0.65)`;
+            }
+            document.documentElement.style.setProperty('--hl-glow', glow);
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           Animation Simulator Loop
+        ────────────────────────────────────────────────────────── */
+        function renderCaptionFrame() {
+            captionStage.innerHTML = '';
+            const fontStr = getFontFamilyString(state.font);
+            captionStage.style.fontFamily = fontStr;
+
+            if (state.style === 'marker') {
+                // CapCut Marker Box: Active word has solid yellow highlight badge with dark text
+                state.words.forEach((w, j) => {
+                    const span = document.createElement('span');
+                    span.className = 'caption-word';
+                    span.style.fontFamily = fontStr;
+                    span.textContent = w;
+                    if (j === state.activeWordIdx) {
+                        span.classList.add('marker-active');
+                    }
+                    captionStage.appendChild(span);
+                });
+            } else if (state.style === 'typing') {
+                // CapCut Typewriter: Words reveal sequentially 0 to activeWordIdx
+                for (let j = 0; j <= state.activeWordIdx && j < state.words.length; j++) {
+                    const span = document.createElement('span');
+                    span.className = 'caption-word';
+                    span.style.fontFamily = fontStr;
+                    span.textContent = state.words[j];
+                    if (j === state.activeWordIdx) {
+                        span.classList.add('active-word');
+                    }
+                    captionStage.appendChild(span);
+                }
+            } else if (state.style === 'punch') {
+                // Punchy: Only 1 or 2 words on screen
+                const word = state.words[state.activeWordIdx % state.words.length];
+                const span = document.createElement('span');
+                span.className = 'caption-word active-word';
+                span.style.fontFamily = fontStr;
+                span.style.fontSize = '2.9rem';
+                span.textContent = word;
+                captionStage.appendChild(span);
+            } else {
+                // CapCut Yellow Pop (bounce): All words visible, active word pops bigger in vibrant yellow with crisp black stroke
+                state.words.forEach((w, j) => {
+                    const span = document.createElement('span');
+                    span.className = 'caption-word';
+                    span.style.fontFamily = fontStr;
+                    span.textContent = w;
+                    if (j === state.activeWordIdx) {
+                        span.classList.add('active-word');
+                    }
+                    captionStage.appendChild(span);
+                });
+            }
+        }
+
+        function stepSimulator() {
+            state.activeWordIdx++;
+            if (state.activeWordIdx >= state.words.length) {
+                // Pause at the end of the phrase before switching
+                clearTimeout(state.timer);
+                state.timer = setTimeout(() => {
+                    state.activeWordIdx = 0;
+                    // Rotate to next phrase in bank if user didn't enter custom text
+                    if (!customPreviewText.dataset.userEdited) {
+                        phraseBankIdx = (phraseBankIdx + 1) % samplePhrases.length;
+                        state.words = samplePhrases[phraseBankIdx];
+                        customPreviewText.value = state.words.join(' ');
+                    }
+                    renderCaptionFrame();
+                    scheduleNextStep();
+                }, 1000);
+                return;
+            }
+
+            renderCaptionFrame();
+            scheduleNextStep();
+        }
+
+        function scheduleNextStep() {
+            clearTimeout(state.timer);
+            // Speed adjusted for fluid reading pace (approx 340ms per word)
+            const speed = state.style === 'punch' ? 420 : 360;
+            state.timer = setTimeout(stepSimulator, speed);
+        }
+
+        function restartSimulator() {
+            clearTimeout(state.timer);
+            state.activeWordIdx = 0;
+            renderCaptionFrame();
+            scheduleNextStep();
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           Style Card Selection
+        ────────────────────────────────────────────────────────── */
+        const styleDescs = {
+            marker: 'CapCut Marker Box: Active word gets a solid yellow highlight badge with dark text.',
+            typing: 'CapCut Typewriter: Words appear sequentially as spoken with active enlargement.',
+            bounce: 'CapCut Yellow Pop: All words visible; active word turns vibrant yellow with crisp black stroke & pops bigger.',
+            punch: 'Punchy Zoom: 1-2 words fast high-energy impact, popular in viral shorts.'
+        };
+
+        document.querySelectorAll('.style-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                state.style = card.dataset.style;
+                document.getElementById('styleInput').value = state.style;
+                currentStyleDesc.textContent = styleDescs[state.style];
+                restartSimulator();
+            });
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Word Enlargement Scale Selection
+        ────────────────────────────────────────────────────────── */
+        document.querySelectorAll('.size-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                const scaleVal = parseInt(chip.dataset.scale);
+                state.scale = scaleVal / 100;
+                document.getElementById('scaleInput').value = scaleVal;
+                updateCssVariables();
+                renderCaptionFrame();
+            });
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Color Palette Selection
+        ────────────────────────────────────────────────────────── */
+        document.querySelectorAll('.color-swatch').forEach(swatch => {
+            swatch.addEventListener('click', () => {
+                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                swatch.classList.add('active');
+                state.colorHex = swatch.dataset.hex;
+                state.colorName = swatch.dataset.color;
+                colorNameLabel.textContent = swatch.dataset.name;
+                document.getElementById('colorInput').value = state.colorName;
+                updateCssVariables();
+                renderCaptionFrame();
+            });
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Aspect Ratio Selection
+        ────────────────────────────────────────────────────────── */
+        document.querySelectorAll('[data-ratio]').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('[data-ratio]').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                state.aspectRatio = chip.dataset.ratio;
+                document.getElementById('ratioInput').value = state.aspectRatio;
+
+                if (state.aspectRatio === '9:16') {
+                    mockScreenWrapper.className = 'mock-screen-wrapper ratio-9-16';
+                    phoneNotch.style.display = 'block';
+                } else {
+                    mockScreenWrapper.className = 'mock-screen-wrapper ratio-16-9';
+                    phoneNotch.style.display = 'none';
+                }
+            });
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Canvas Background Selection
+        ────────────────────────────────────────────────────────── */
+        document.querySelectorAll('[data-bg]').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('[data-bg]').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                state.bgColor = chip.dataset.bg;
+                document.getElementById('bgInput').value = state.bgColor;
+
+                screenCanvas.className = `screen-canvas bg-${state.bgColor}`;
+                btnToggleBg.textContent = state.bgColor === 'green' ? '🟩 Chroma' : (state.bgColor === 'blue' ? '🟦 Blue' : '⬛ Dark');
+            });
+        });
+
+        btnToggleBg.addEventListener('click', () => {
+            if (state.bgColor === 'green') {
+                state.bgColor = 'black';
+            } else if (state.bgColor === 'black') {
+                state.bgColor = 'blue';
+            } else {
+                state.bgColor = 'green';
+            }
+            document.querySelectorAll('[data-bg]').forEach(c => {
+                c.classList.toggle('active', c.dataset.bg === state.bgColor);
+            });
+            document.getElementById('bgInput').value = state.bgColor;
+            screenCanvas.className = `screen-canvas bg-${state.bgColor}`;
+            btnToggleBg.textContent = state.bgColor === 'green' ? '🟩 Chroma' : (state.bgColor === 'blue' ? '🟦 Blue' : '⬛ Dark');
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Font Selection
+        ────────────────────────────────────────────────────────── */
+        document.getElementById('fontInput').addEventListener('change', (e) => {
+            state.font = e.target.value;
+            const fontStr = getFontFamilyString(state.font);
+            updateCssVariables();
+            captionStage.style.fontFamily = fontStr;
+            document.querySelectorAll('.caption-word').forEach(el => {
+                el.style.fontFamily = fontStr;
+            });
+            renderCaptionFrame();
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Custom Text Test
+        ────────────────────────────────────────────────────────── */
+        btnApplyText.addEventListener('click', applyCustomText);
+        customPreviewText.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyCustomText();
+            }
+        });
+
+        function applyCustomText() {
+            const raw = customPreviewText.value.trim();
+            if (raw.length > 0) {
+                customPreviewText.dataset.userEdited = 'true';
+                state.words = raw.split(/\s+/);
+                restartSimulator();
+            }
+        }
+
+        btnRestartPreview.addEventListener('click', restartSimulator);
+
+        /* ──────────────────────────────────────────────────────────
+           File Upload Drag & Drop
+        ────────────────────────────────────────────────────────── */
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+            dropZone.addEventListener(ev, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(ev => {
+            dropZone.addEventListener(ev, () => dropZone.classList.add('dragover'));
+        });
+        ['dragleave', 'drop'].forEach(ev => {
+            dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover'));
+        });
+
+        dropZone.addEventListener('drop', e => {
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelection();
+            }
+        });
+
+        fileInput.addEventListener('change', handleFileSelection);
+
+        function handleFileSelection() {
+            if (fileInput.files.length > 0) {
+                const f = fileInput.files[0];
+                const sizeMb = (f.size / (1024 * 1024)).toFixed(1);
+                fileNameDisplay.textContent = `${f.name} (${sizeMb} MB)`;
+                fileBadge.style.display = 'flex';
+                dropZone.style.display = 'none';
+                generateBtn.disabled = false;
+                errorAlert.style.display = 'none';
+                successAlert.style.display = 'none';
+            }
+        }
+
+        removeFileBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            fileBadge.style.display = 'none';
+            dropZone.style.display = 'block';
+            generateBtn.disabled = true;
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           AI Engine Speed Selection
+        ────────────────────────────────────────────────────────── */
+        const speedDescs = {
+            base: 'Turbo Mode (5x Faster, for 1GB - 10GB files)',
+            small: 'Precision Mode (Deep accuracy for complex accents)'
+        };
+
+        document.querySelectorAll('[data-speed]').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('[data-speed]').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                const speedVal = chip.dataset.speed;
+                document.getElementById('speedInput').value = speedVal;
+                document.getElementById('speedModeDesc').textContent = speedDescs[speedVal];
+            });
+        });
+
+        /* ──────────────────────────────────────────────────────────
+           Form Submission & Real-time Progress Video Download
+        ────────────────────────────────────────────────────────── */
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressBytes = document.getElementById('progressBytes');
+        const loadingHint = document.getElementById('loadingHint');
+
+        captionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!fileInput.files.length) return;
+
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
+            loadingModal.style.display = 'flex';
+            generateBtn.disabled = true;
+
+            // Reset progress bar
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressBytes.textContent = '0 MB / Calculating...';
+            loadingStep.textContent = 'Uploading media file to server...';
+            loadingHint.textContent = 'Large files up to 50 GB supported. Please keep this tab open.';
+
+            const formData = new FormData(captionForm);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.responseType = 'blob';
+
+            let stageTimer1, stageTimer2;
+
+            xhr.upload.onprogress = (ev) => {
+                if (ev.lengthComputable) {
+                    const percent = Math.round((ev.loaded / ev.total) * 100);
+                    const loadedMb = (ev.loaded / (1024 * 1024)).toFixed(0);
+                    const totalMb = (ev.total / (1024 * 1024)).toFixed(0);
+
+                    progressFill.style.width = `${percent}%`;
+                    progressPercent.textContent = `${percent}%`;
+                    progressBytes.textContent = `${loadedMb} MB / ${totalMb} MB`;
+
+                    if (percent < 100) {
+                        loadingStep.textContent = `Uploading file: ${percent}%`;
+                        loadingHint.textContent = `Uploaded ${loadedMb} MB of ${totalMb} MB...`;
+                    } else {
+                        progressFill.style.width = '100%';
+                        progressPercent.textContent = '100%';
+                        loadingStep.textContent = 'Extracting audio & Transcribing with Whisper AI...';
+                        loadingHint.textContent = 'AI transcribing with 8 CPU threads + Silero VAD silence removal.';
+
+                        stageTimer1 = setTimeout(() => {
+                            loadingStep.textContent = 'Generating kinetic typography & timing...';
+                            loadingHint.textContent = 'Formatting ASS word-level animations...';
+                        }, 8000);
+
+                        stageTimer2 = setTimeout(() => {
+                            loadingStep.textContent = 'Rendering green screen overlay video with FFmpeg...';
+                            loadingHint.textContent = 'Hardware accelerated 30fps stream multiplexing...';
+                        }, 18000);
+                    }
+                }
+            };
+
+            xhr.onload = () => {
+                clearTimeout(stageTimer1);
+                clearTimeout(stageTimer2);
+                loadingModal.style.display = 'none';
+                generateBtn.disabled = false;
+
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const blob = xhr.response;
+                    let filename = 'captions_overlay.mp4';
+                    const disp = xhr.getResponseHeader('Content-Disposition');
+                    if (disp) {
+                        const m = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disp);
+                        if (m && m[1]) filename = m[1].replace(/['"]/g, '');
+                    }
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(downloadUrl);
+
+                    successAlert.innerHTML = `
+                        🎉 <strong>Success! 60-Second Video Preview Ready!</strong><br>
+                        ⏱️ Processed and generated the first <strong>60 seconds</strong> of your audio.<br>
+                        📥 Downloaded to your browser's <strong>Downloads</strong> folder as: <code>${filename}</code><br>
+                        📁 A permanent backup copy is also saved in: <code>C:\\MY DEV\\ai-caption-studio\\output\\${filename}</code>
+                        <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" onclick="fetch('/open-output')" style="background: rgba(34, 197, 94, 0.2); border: 1.5px solid rgba(34, 197, 94, 0.4); color: #86efac; padding: 7px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                📂 Open Output Folder in Windows Explorer
+                            </button>
+                        </div>
+                    `;
+                    successAlert.style.display = 'block';
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        let errMsg = `Server returned status ${xhr.status}`;
+                        try {
+                            const errObj = JSON.parse(reader.result);
+                            if (errObj && errObj.error) errMsg = errObj.error;
+                        } catch (e) {
+                            if (xhr.status === 413) {
+                                errMsg = 'File exceeds maximum upload size.';
+                            } else if (reader.result && reader.result.length < 300 && !reader.result.includes('<html')) {
+                                errMsg = reader.result;
+                            }
+                        }
+                        errorAlert.innerHTML = `❌ <strong>Error:</strong> ${errMsg}`;
+                        errorAlert.style.display = 'block';
+                    };
+                    reader.readAsText(xhr.response);
+                }
+            };
+
+            xhr.onerror = () => {
+                clearTimeout(stageTimer1);
+                clearTimeout(stageTimer2);
+                loadingModal.style.display = 'none';
+                generateBtn.disabled = false;
+                errorAlert.innerHTML = '❌ <strong>Connection Error:</strong> Network lost or request timed out.';
+                errorAlert.style.display = 'block';
+            };
+
+            xhr.send(formData);
+        });
+
+        // Initialize state
+        updateCssVariables();
+        restartSimulator();
+    </script>
+</body>
+</html>
