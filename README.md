@@ -1,4 +1,4 @@
-# ⚡ AI Caption Studio — Viral Chroma Overlays & Kinetic Subtitles
+# ⚡ AI Caption Studio — Viral Chroma Overlays &  Subtitles
 
 <p align="left">
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?style=for-the-badge&logo=python&logoColor=white" />
